@@ -2,111 +2,137 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Comparison Sentence Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Comparison Game</title>
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
       padding: 2rem;
+      background-color: #f0f8ff;
     }
-    #prompt {
-      font-size: 1.5rem;
-      margin: 1rem 0;
+    h1 {
+      margin-bottom: 2rem;
     }
-    input[type="text"] {
-      width: 80%;
-      padding: 0.5rem;
+    .card {
+      font-size: 2.5rem;
+      margin: 1rem;
+      padding: 1rem;
+      background-color: #ffffff;
+      border: 2px solid #007acc;
+      border-radius: 1rem;
+      display: inline-block;
+      width: 180px;
+    }
+    input, button {
       font-size: 1rem;
-    }
-    button {
+      padding: 0.75rem;
       margin: 0.5rem;
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
+      width: 80%;
+      max-width: 400px;
     }
-    #history {
+    .feedback {
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+    .admin-buttons {
       margin-top: 2rem;
-      text-align: left;
-    }
-    .entry {
-      margin-bottom: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <h1>Comparison Sentence Game</h1>
-  <div id="prompt"></div>
-  <input type="text" id="userInput" placeholder="Write your sentence here..." />
-  <br />
-  <button onclick="submitAnswer()">Submit</button>
-  <button onclick="exportLog()">Export Log</button>
-  <div id="history">
-    <h2>Answer Log</h2>
-    <div id="log"></div>
+  <h1>📏 Comparison Game!</h1>
+
+  <div class="card" id="adjective">--</div>
+  <div class="card" id="symbol">--</div>
+
+  <br/>
+  <button onclick="newPrompt()">Start!</button>
+
+  <hr style="margin: 2rem 0;">
+
+  <h2>Make Your Sentence</h2>
+  <input type="text" id="userInput" placeholder="Type your sentence here">
+  <br/>
+  <button onclick="submitAnswer()">✅ Submit</button>
+
+  <div class="feedback" id="feedbackText"></div>
+
+  <div class="admin-buttons">
+    <button onclick="clearLog()">♻️ Clear Log</button>
+    <button onclick="exportLog()">📁 Export Log</button>
   </div>
+
+  <div style="display: none;" id="logOutput"></div>
 
   <script>
     const adjectives = ["fast", "tall", "interesting", "strong", "friendly", "cold", "expensive", "bright", "easy", "long"];
     const symbols = [">", "<", "="];
 
-    const sentenceTypes = {
-      '>': (adj) => `A is ${comparative(adj)} than B.`,
-      '<': (adj) => `A isn't as ${adj} as B.`,
-      '=': (adj) => `A is just as ${adj} as B.`
-    };
-
-    function comparative(adj) {
-      if (/y$/.test(adj)) return adj.replace(/y$/, 'ier');
-      if (adj.length <= 5) return adj + 'er';
-      return 'more ' + adj;
-    }
-
+    const usedEntries = new Set();
     let currentAdjective = '';
     let currentSymbol = '';
-    const logEntries = [];
 
     function newPrompt() {
-      const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
-      const randomSym = symbols[Math.floor(Math.random() * symbols.length)];
-      currentAdjective = randomAdj;
-      currentSymbol = randomSym;
-      document.getElementById('prompt').innerHTML = `<strong>Adjective:</strong> ${randomAdj} &nbsp;&nbsp; <strong>Symbol:</strong> ${randomSym}`;
-      document.getElementById('userInput').value = '';
+      currentAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+      currentSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+      document.getElementById('adjective').textContent = currentAdjective;
+      document.getElementById('symbol').textContent = currentSymbol;
     }
 
     function submitAnswer() {
       const input = document.getElementById('userInput').value.trim();
-      if (!input) return;
-      const formatted = `(${currentAdjective} ${currentSymbol}) → ${input}`;
-      logEntries.push(formatted);
+      const feedback = document.getElementById('feedbackText');
+      if (!input) {
+        feedback.textContent = "⚠️ Please enter a sentence.";
+        feedback.style.color = "orange";
+        return;
+      }
 
-      const logEntry = document.createElement('div');
-      logEntry.className = 'entry';
-      logEntry.textContent = formatted;
-      document.getElementById('log').prepend(logEntry);
+      const fullEntry = `(${currentAdjective} ${currentSymbol}) ${input}`;
+      if (usedEntries.has(fullEntry)) {
+        feedback.textContent = "❌ Already used!";
+        feedback.style.color = "red";
+        return;
+      }
 
+      usedEntries.add(fullEntry);
+      updateLog();
+      feedback.textContent = "✅ Sentence recorded!";
+      feedback.style.color = "green";
+
+      document.getElementById('userInput').value = "";
       newPrompt();
     }
 
-function exportLog() {
-  const exportText = logEntries.join("\n");
-  const blob = new Blob([exportText], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
+    function updateLog() {
+      const list = Array.from(usedEntries).map(a => `<li>${a}</li>`).join("");
+      document.getElementById('logOutput').innerHTML = `<ul>${list}</ul>`;
+    }
 
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const filename = `comparison_game_log_${timestamp}.txt`;
+    function clearLog() {
+      if (confirm("Clear all logged sentences?")) {
+        usedEntries.clear();
+        document.getElementById('feedbackText').textContent = "🧹 Cleared all entries.";
+        updateLog();
+      }
+    }
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
+    function exportLog() {
+      const content = Array.from(usedEntries).join("\n");
+      const blob = new Blob([content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
 
-  URL.revokeObjectURL(url);
-}
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "comparison-log.txt";
+      a.click();
 
-    // Initialize
+      URL.revokeObjectURL(url);
+    }
+
+    // Start on load
     newPrompt();
   </script>
 </body>
 </html>
-
