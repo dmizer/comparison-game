@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comparison Sentence Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    #prompt {
+      font-size: 1.5rem;
+      margin: 1rem 0;
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    button {
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+    #history {
+      margin-top: 2rem;
+      text-align: left;
+    }
+    .entry {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Comparison Sentence Game</h1>
+  <div id="prompt"></div>
+  <input type="text" id="userInput" placeholder="Write your sentence here..." />
+  <br />
+  <button onclick="submitAnswer()">Submit</button>
+  <button onclick="exportLog()">Export Log</button>
+  <div id="history">
+    <h2>Answer Log</h2>
+    <div id="log"></div>
+  </div>
+
+  <script>
+    const adjectives = ["fast", "tall", "interesting", "strong", "friendly", "cold", "expensive", "bright", "easy", "long"];
+    const symbols = [">", "<", "="];
+
+    const sentenceTypes = {
+      '>': (adj) => `A is ${comparative(adj)} than B.`,
+      '<': (adj) => `A isn't as ${adj} as B.`,
+      '=': (adj) => `A is just as ${adj} as B.`
+    };
+
+    function comparative(adj) {
+      if (/y$/.test(adj)) return adj.replace(/y$/, 'ier');
+      if (adj.length <= 5) return adj + 'er';
+      return 'more ' + adj;
+    }
+
+    let currentAdjective = '';
+    let currentSymbol = '';
+    const logEntries = [];
+
+    function newPrompt() {
+      const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const randomSym = symbols[Math.floor(Math.random() * symbols.length)];
+      currentAdjective = randomAdj;
+      currentSymbol = randomSym;
+      document.getElementById('prompt').innerHTML = `<strong>Adjective:</strong> ${randomAdj} &nbsp;&nbsp; <strong>Symbol:</strong> ${randomSym}`;
+      document.getElementById('userInput').value = '';
+    }
+
+    function submitAnswer() {
+      const input = document.getElementById('userInput').value.trim();
+      if (!input) return;
+      const formatted = `(${currentAdjective} ${currentSymbol}) → ${input}`;
+      logEntries.push(formatted);
+
+      const logEntry = document.createElement('div');
+      logEntry.className = 'entry';
+      logEntry.textContent = formatted;
+      document.getElementById('log').prepend(logEntry);
+
+      newPrompt();
+    }
+
+function exportLog() {
+  const exportText = logEntries.join("\n");
+  const blob = new Blob([exportText], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const filename = `comparison_game_log_${timestamp}.txt`;
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+    // Initialize
+    newPrompt();
+  </script>
+</body>
+</html>
+
