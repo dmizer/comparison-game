@@ -35,13 +35,6 @@
       font-weight: bold;
       margin-top: 1rem;
     }
-    #history {
-      margin-top: 2rem;
-      text-align: left;
-    }
-    .entry {
-      margin-bottom: 0.5rem;
-    }
   </style>
 </head>
 <body>
@@ -58,14 +51,10 @@
   <input type="text" id="userInput" placeholder="Type your sentence here..." />
   <br />
   <button onclick="submitAnswer()">✅ Submit</button>
-  <button onclick="exportLog()">📁 Export Log</button>
+  <button onclick="clearAnswers()">♻️ Clear All Answers</button>
+  <button onclick="exportLog()">📁 Export Answers</button>
 
   <div class="feedback" id="feedbackText"></div>
-
-  <div id="history">
-    <h2>Answer Log</h2>
-    <div id="log"></div>
-  </div>
 
   <script>
     const adjectives = [
@@ -89,12 +78,6 @@
     ];
 
     const symbols = [">", "<", "="];
-
-    const sentenceTypes = {
-      '>': (adj) => `A is ${comparative(adj)} than B.`,
-      '<': (adj) => `A isn't as ${adj} as B.`,
-      '=': (adj) => `A is just as ${adj} as B.`
-    };
 
     function comparative(adj) {
       if (/y$/.test(adj)) return adj.replace(/y$/, 'ier');
@@ -141,14 +124,17 @@
       const formatted = `(${currentAdjective} ${currentSymbol}) → ${input}`;
       logEntries.push(formatted);
 
-      const logEntry = document.createElement('div');
-      logEntry.className = 'entry';
-      logEntry.textContent = formatted;
-      document.getElementById('log').prepend(logEntry);
-
       feedback.textContent = "✅ Answer recorded!";
       feedback.style.color = "green";
       newPrompt();
+    }
+
+    function clearAnswers() {
+      if (confirm("Clear all saved answers?")) {
+        logEntries.length = 0;
+        document.getElementById('feedbackText').textContent = "🧹 Answers cleared.";
+        document.getElementById('feedbackText').style.color = "blue";
+      }
     }
 
     function exportLog() {
@@ -166,9 +152,6 @@
 
       URL.revokeObjectURL(url);
     }
-
-    // Initialize
-    newPrompt();
   </script>
 </body>
 </html>
