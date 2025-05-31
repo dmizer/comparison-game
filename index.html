@@ -9,20 +9,31 @@
       font-family: sans-serif;
       text-align: center;
       padding: 2rem;
+      background-color: #f0f8ff;
     }
-    #prompt {
-      font-size: 1.5rem;
-      margin: 1rem 0;
+    h1 {
+      margin-bottom: 2rem;
     }
-    input[type="text"] {
-      width: 80%;
-      padding: 0.5rem;
+    .card {
+      font-size: 2.5rem;
+      margin: 1rem;
+      padding: 1rem;
+      background-color: #ffffff;
+      border: 2px solid #007acc;
+      border-radius: 1rem;
+      display: inline-block;
+      width: 180px;
+    }
+    input, button {
       font-size: 1rem;
-    }
-    button {
+      padding: 0.75rem;
       margin: 0.5rem;
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
+      width: 80%;
+      max-width: 400px;
+    }
+    .feedback {
+      font-weight: bold;
+      margin-top: 1rem;
     }
     #history {
       margin-top: 2rem;
@@ -34,12 +45,23 @@
   </style>
 </head>
 <body>
-  <h1>Comparison Sentence Game</h1>
-  <div id="prompt"></div>
-  <input type="text" id="userInput" placeholder="Write your sentence here..." />
+  <h1>📝 Comparison Sentence Game</h1>
+
+  <div class="card" id="adjCard">--</div>
+  <div class="card" id="symbolCard">--</div>
+  <br/>
+  <button onclick="newPrompt()">🎲 Start!</button>
+
+  <hr style="margin: 2rem 0;">
+
+  <h2>Write Your Sentence</h2>
+  <input type="text" id="userInput" placeholder="Type your sentence here..." />
   <br />
-  <button onclick="submitAnswer()">Submit</button>
-  <button onclick="exportLog()">Export Log</button>
+  <button onclick="submitAnswer()">✅ Submit</button>
+  <button onclick="exportLog()">📁 Export Log</button>
+
+  <div class="feedback" id="feedbackText"></div>
+
   <div id="history">
     <h2>Answer Log</h2>
     <div id="log"></div>
@@ -101,13 +123,21 @@
       const randomSym = symbols[Math.floor(Math.random() * symbols.length)];
       currentAdjective = randomAdj;
       currentSymbol = randomSym;
-      document.getElementById('prompt').innerHTML = `<strong>Adjective:</strong> ${randomAdj} &nbsp;&nbsp; <strong>Symbol:</strong> ${randomSym}`;
+      document.getElementById('adjCard').textContent = randomAdj;
+      document.getElementById('symbolCard').textContent = randomSym;
       document.getElementById('userInput').value = '';
+      document.getElementById('feedbackText').textContent = '';
     }
 
     function submitAnswer() {
       const input = document.getElementById('userInput').value.trim();
-      if (!input) return;
+      const feedback = document.getElementById('feedbackText');
+      if (!input) {
+        feedback.textContent = "⚠️ Please enter a sentence.";
+        feedback.style.color = "orange";
+        return;
+      }
+
       const formatted = `(${currentAdjective} ${currentSymbol}) → ${input}`;
       logEntries.push(formatted);
 
@@ -116,6 +146,8 @@
       logEntry.textContent = formatted;
       document.getElementById('log').prepend(logEntry);
 
+      feedback.textContent = "✅ Answer recorded!";
+      feedback.style.color = "green";
       newPrompt();
     }
 
