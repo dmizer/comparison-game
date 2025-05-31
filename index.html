@@ -48,11 +48,14 @@
   <hr style="margin: 2rem 0;">
 
   <h2>Write Your Sentence</h2>
-  <input type="text" id="userInput" placeholder="Type your sentence here..." />
-  <br />
-  <button onclick="submitAnswer()">✅ Submit</button>
+<input type="text" id="userInput" placeholder="Type your sentence here..." />
+<div>
+  <button onclick="submitAnswer()" style="margin-top: 1rem;">✅ Submit</button>
+</div>
+<div style="margin-top: 1rem;">
   <button onclick="clearAnswers()">♻️ Clear All Answers</button>
   <button onclick="exportLog()">📁 Export Answers</button>
+</div>
 
   <div class="feedback" id="feedbackText"></div>
 
