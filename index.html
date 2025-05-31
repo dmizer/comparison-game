@@ -2,136 +2,140 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Comparison Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comparison Sentence Game</title>
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
       padding: 2rem;
-      background-color: #f0f8ff;
     }
-    h1 {
-      margin-bottom: 2rem;
+    #prompt {
+      font-size: 1.5rem;
+      margin: 1rem 0;
     }
-    .card {
-      font-size: 2.5rem;
-      margin: 1rem;
-      padding: 1rem;
-      background-color: #ffffff;
-      border: 2px solid #007acc;
-      border-radius: 1rem;
-      display: inline-block;
-      width: 180px;
-    }
-    input, button {
-      font-size: 1rem;
-      padding: 0.75rem;
-      margin: 0.5rem;
+    input[type="text"] {
       width: 80%;
-      max-width: 400px;
+      padding: 0.5rem;
+      font-size: 1rem;
     }
-    .feedback {
-      font-weight: bold;
-      margin-top: 1rem;
+    button {
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
     }
-    .admin-buttons {
+    #history {
       margin-top: 2rem;
+      text-align: left;
+    }
+    .entry {
+      margin-bottom: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <h1>📏 Comparison Game!</h1>
-
-  <div class="card" id="adjective">--</div>
-  <div class="card" id="symbol">--</div>
-
-  <br/>
-  <button onclick="newPrompt()">Start!</button>
-
-  <hr style="margin: 2rem 0;">
-
-  <h2>Make Your Sentence</h2>
-  <input type="text" id="userInput" placeholder="Type your sentence here">
-  <br/>
-  <button onclick="submitAnswer()">✅ Submit</button>
-
-  <div class="feedback" id="feedbackText"></div>
-
-  <div class="admin-buttons">
-    <button onclick="clearLog()">♻️ Clear Log</button>
-    <button onclick="exportLog()">📁 Export Log</button>
+  <h1>Comparison Sentence Game</h1>
+  <div id="prompt"></div>
+  <input type="text" id="userInput" placeholder="Write your sentence here..." />
+  <br />
+  <button onclick="submitAnswer()">Submit</button>
+  <button onclick="exportLog()">Export Log</button>
+  <div id="history">
+    <h2>Answer Log</h2>
+    <div id="log"></div>
   </div>
 
-  <div style="display: none;" id="logOutput"></div>
-
   <script>
-    const adjectives = ["fast", "tall", "interesting", "strong", "friendly", "cold", "expensive", "bright", "easy", "long"];
+    const adjectives = [
+      "happy", "sad", "quick", "slow", "brave", "shy", "clever", "lazy", "kind", "mean",
+      "polite", "rude", "quiet", "loud", "tough", "weak", "beautiful", "ugly",
+      "honest", "dishonest", "helpful", "useless", "graceful", "clumsy", "young", "old",
+      "new", "ancient", "modern", "dirty", "clean", "smooth", "rough", "wide", "narrow",
+      "sharp", "dull", "famous", "unknown", "rich", "poor", "wise", "foolish", "short", "tall",
+      "fast", "slow", "warm", "cold", "strong", "fragile", "bright", "dark", "hard", "soft",
+      "noisy", "silent", "friendly", "hostile", "thin", "thick", "deep", "shallow", "big", "small",
+      "fat", "slim", "curly", "straight", "open", "closed", "wet", "dry", "early", "late",
+      "clean", "messy", "safe", "dangerous", "cheap", "expensive", "light", "heavy",
+      "free", "busy", "fresh", "stale", "interesting", "boring", "easy", "difficult",
+      "important", "unimportant", "real", "fake", "funny", "serious", "rich", "modest",
+      "cool", "hot", "calm", "nervous", "angry", "peaceful", "long", "short", "tall", "low",
+      "dry", "wet", "lucky", "unlucky", "honest", "liar", "gentle", "violent", "generous", "greedy",
+      "optimistic", "pessimistic", "proud", "humble", "ambitious", "lazy", "creative", "uncreative",
+      "flexible", "rigid", "energetic", "tired", "independent", "dependent", "practical", "impractical",
+      "mature", "immature", "organized", "disorganized", "confident", "insecure", "reliable", "unreliable",
+      "adventurous", "cautious", "curious", "uninterested", "playful", "serious", "supportive", "critical"
+    ];
+
     const symbols = [">", "<", "="];
 
-    const usedEntries = new Set();
+    const sentenceTypes = {
+      '>': (adj) => `A is ${comparative(adj)} than B.`,
+      '<': (adj) => `A isn't as ${adj} as B.`,
+      '=': (adj) => `A is just as ${adj} as B.`
+    };
+
+    function comparative(adj) {
+      if (/y$/.test(adj)) return adj.replace(/y$/, 'ier');
+      if (adj.length <= 5) return adj + 'er';
+      return 'more ' + adj;
+    }
+
+    let adjectiveQueue = [];
     let currentAdjective = '';
     let currentSymbol = '';
+    const logEntries = [];
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function getNextAdjective() {
+      if (adjectiveQueue.length === 0) {
+        adjectiveQueue = shuffle([...adjectives]);
+      }
+      return adjectiveQueue.pop();
+    }
 
     function newPrompt() {
-      currentAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-      currentSymbol = symbols[Math.floor(Math.random() * symbols.length)];
-      document.getElementById('adjective').textContent = currentAdjective;
-      document.getElementById('symbol').textContent = currentSymbol;
+      const randomAdj = getNextAdjective();
+      const randomSym = symbols[Math.floor(Math.random() * symbols.length)];
+      currentAdjective = randomAdj;
+      currentSymbol = randomSym;
+      document.getElementById('prompt').innerHTML = `<strong>Adjective:</strong> ${randomAdj} &nbsp;&nbsp; <strong>Symbol:</strong> ${randomSym}`;
+      document.getElementById('userInput').value = '';
     }
 
     function submitAnswer() {
       const input = document.getElementById('userInput').value.trim();
-      const feedback = document.getElementById('feedbackText');
-      if (!input) {
-        feedback.textContent = "⚠️ Please enter a sentence.";
-        feedback.style.color = "orange";
-        return;
-      }
+      if (!input) return;
+      const formatted = `(${currentAdjective} ${currentSymbol}) → ${input}`;
+      logEntries.push(formatted);
 
-      const fullEntry = `(${currentAdjective} ${currentSymbol}) ${input}`;
-      if (usedEntries.has(fullEntry)) {
-        feedback.textContent = "❌ Already used!";
-        feedback.style.color = "red";
-        return;
-      }
+      const logEntry = document.createElement('div');
+      logEntry.className = 'entry';
+      logEntry.textContent = formatted;
+      document.getElementById('log').prepend(logEntry);
 
-      usedEntries.add(fullEntry);
-      updateLog();
-      feedback.textContent = "✅ Sentence recorded!";
-      feedback.style.color = "green";
-
-      document.getElementById('userInput').value = "";
       newPrompt();
     }
 
-    function updateLog() {
-      const list = Array.from(usedEntries).map(a => `<li>${a}</li>`).join("");
-      document.getElementById('logOutput').innerHTML = `<ul>${list}</ul>`;
-    }
-
-    function clearLog() {
-      if (confirm("Clear all logged sentences?")) {
-        usedEntries.clear();
-        document.getElementById('feedbackText').textContent = "🧹 Cleared all entries.";
-        updateLog();
-      }
-    }
-
     function exportLog() {
-      const content = Array.from(usedEntries).join("\n");
-      const blob = new Blob([content], { type: "text/plain" });
+      const exportText = logEntries.join("\n");
+      const blob = new Blob([exportText], { type: "text/plain" });
       const url = URL.createObjectURL(blob);
+
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const filename = `comparison_game_log_${timestamp}.txt`;
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = "comparison-log.txt";
+      a.download = filename;
       a.click();
 
       URL.revokeObjectURL(url);
     }
 
-    // Start on load
+    // Initialize
     newPrompt();
   </script>
 </body>
