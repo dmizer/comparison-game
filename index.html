@@ -62,7 +62,7 @@
   <div class="feedback" id="feedbackText"></div>
 
   <script>
-    // ───── Data & State ──────────────────────────────────────────────────────
+    // ───── Data & State ────────────────────────────────────────────────────
     const adjectives = [
       "happy", "sad", "quick", "slow", "brave", "shy", "clever", "lazy", "kind", "mean",
       "polite", "rude", "quiet", "loud", "tough", "weak", "beautiful", "ugly",
@@ -91,7 +91,7 @@
     let currentSymbol = '';
     const logEntries = [];
 
-    // ───── Helper Functions ────────────────────────────────────────────────────
+    // ───── Helper Functions ───────────────────────────────────────────────────
     function shuffle(array) {
       return array.sort(() => Math.random() - 0.5);
     }
@@ -105,17 +105,13 @@
 
     // ───── Core Logic ─────────────────────────────────────────────────────────
     function newPrompt() {
-      // 1) Pick a random adjective and symbol
       const randomAdj = getNextAdjective();
       const randomSym = symbols[Math.floor(Math.random() * symbols.length)];
       currentAdjective = randomAdj;
       currentSymbol = randomSym;
 
-      // 2) Update the two "card" DIVs
       document.getElementById('adjCard').textContent = randomAdj;
       document.getElementById('symbolCard').textContent = randomSym;
-
-      // 3) Clear input & feedback
       document.getElementById('userInput').value = '';
       document.getElementById('feedbackText').textContent = '';
     }
@@ -135,8 +131,6 @@
 
       feedback.textContent = "✅ Answer recorded!";
       feedback.style.color = "green";
-
-      // Immediately load the next prompt
       newPrompt();
     }
 
@@ -149,41 +143,14 @@
       }
     }
 
-function exportLog() {
-  // 1) Build the plain-text log (one line per entry):
-  const logText = logEntries.join("\n");
-
-  // 2) Wrap it in a simple HTML shell:
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>Comparison Game Answer Log</title>
-        <style>
-          body {
-            font-family: monospace;
-            white-space: pre-wrap;
-            padding: 2rem;
-            background: #f9f9f9;
-          }
-          h1 {
-            font-size: 1.5rem;
-          }
-        </style>
-      </head>
-      <body>
-        <h1>Comparison Game Answer Log</h1>
-        <div>${logText.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</div>
-      </body>
-    </html>
-  `;
-
-  // 3) Encode it as a data: URL and navigate there:
-  const dataUrl = "data:text/html;charset=utf-8," + encodeURIComponent(htmlContent);
-  window.location.href = dataUrl;
-}
-
+    function exportLog() {
+      // 1) Build a single string of all answers:
+      const raw = logEntries.join("\n");
+      // 2) Encode it so it’s safe in a URL:
+      const encoded = encodeURIComponent(raw);
+      // 3) Navigate to log.html with the data as a query parameter:
+      window.location.href = `log.html?data=${encoded}`;
+    }
   </script>
 </body>
 </html>
