@@ -10,9 +10,23 @@
       white-space: pre-wrap;
       padding: 2rem;
       background: #f9f9f9;
+      text-align: center;
     }
     h1 {
       font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    #logContainer {
+      margin-bottom: 2rem;
+      text-align: left;
+      display: inline-block;
+      max-width: 90%;
+    }
+    button {
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      margin-top: 1rem;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -20,16 +34,24 @@
   <h1>Comparison Game Answer Log</h1>
   <div id="logContainer"></div>
 
+  <!-- “Return to Game” button -->
+  <button onclick="goBack()">⟵ Return to Game</button>
+
   <script>
-    // 1) Grab the “data” parameter from the URL:
+    // 1) Read the “data” parameter from ?data=…
     const params = new URLSearchParams(window.location.search);
     const rawData = params.get('data') || '';
 
-    // 2) DecodeURIComponent → get the original multiline text:
+    // 2) DecodeURIComponent → get the original multiline text
     const decoded = decodeURIComponent(rawData);
 
-    // 3) Instead of manually escaping “<” and “>”, just assign to textContent:
+    // 3) Put it into the log container as plain text
     document.getElementById('logContainer').textContent = decoded;
+
+    // 4) goBack() simply navigates to index.html (wiping any in-memory log on reload)
+    function goBack() {
+      window.location.href = 'index.html';
+    }
   </script>
 </body>
 </html>
