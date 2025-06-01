@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Comparison Sentence Game</title>
+  <title>Debug Comparison Game</title>
   <style>
     body {
       font-family: sans-serif;
@@ -23,6 +23,8 @@
       border-radius: 1rem;
       display: inline-block;
       width: 180px;
+      height: 70px;
+      line-height: 70px;
     }
     input, button {
       font-size: 1rem;
@@ -38,46 +40,52 @@
   </style>
 </head>
 <body>
-  <h1>📝 Comparison Sentence Game</h1>
+  <h1>📝 Comparison Sentence Game (Debug)</h1>
 
   <div class="card" id="adjCard">--</div>
   <div class="card" id="symbolCard">--</div>
   <br/>
-  <button onclick="newPrompt()">🎲 Start!</button>
+  <!-- Give the button an explicit id, too -->
+  <button id="startButton" onclick="newPrompt()">🎲 Start!</button>
 
   <hr style="margin: 2rem 0;">
 
   <h2>Write Your Sentence</h2>
-<input type="text" id="userInput" placeholder="Type your sentence here..." />
-<div>
-  <button onclick="submitAnswer()" style="margin-top: 1rem;">✅ Submit</button>
-</div>
-<div style="margin-top: 1rem;">
-  <button onclick="clearAnswers()">♻️ Clear All Answers</button>
-  <button onclick="exportLog()">📁 Export Answers</button>
-</div>
+  <input type="text" id="userInput" placeholder="Type your sentence here..." />
+  <div>
+    <button onclick="submitAnswer()" style="margin-top: 1rem;">✅ Submit</button>
+  </div>
+  <div style="margin-top: 1rem;">
+    <button onclick="clearAnswers()">♻️ Clear All Answers</button>
+    <button onclick="exportLog()">📁 Export Answers</button>
+  </div>
 
   <div class="feedback" id="feedbackText"></div>
 
   <script>
+    // 1. Script load check
+    console.log("▶️ [DEBUG] script tag has been parsed.");
+
+    // 2. Data arrays
     const adjectives = [
       "happy", "sad", "quick", "slow", "brave", "shy", "clever", "lazy", "kind", "mean",
       "polite", "rude", "quiet", "loud", "tough", "weak", "beautiful", "ugly",
       "honest", "dishonest", "helpful", "useless", "graceful", "clumsy", "young", "old",
       "new", "ancient", "modern", "dirty", "clean", "smooth", "rough", "wide", "narrow",
       "sharp", "dull", "famous", "unknown", "rich", "poor", "wise", "foolish", "short", "tall",
-      "fast", "slow", "warm", "cold", "strong", "fragile", "bright", "dark", "hard", "soft",
+      "fast", "warm", "cold", "strong", "fragile", "bright", "dark", "hard", "soft",
       "noisy", "silent", "friendly", "hostile", "thin", "thick", "deep", "shallow", "big", "small",
       "fat", "slim", "curly", "straight", "open", "closed", "wet", "dry", "early", "late",
-      "clean", "messy", "safe", "dangerous", "cheap", "expensive", "light", "heavy",
+      "messy", "safe", "dangerous", "cheap", "expensive", "light", "heavy",
       "free", "busy", "fresh", "stale", "interesting", "boring", "easy", "difficult",
-      "important", "unimportant", "real", "fake", "funny", "serious", "rich", "modest",
-      "cool", "hot", "calm", "nervous", "angry", "peaceful", "long", "short", "tall", "low",
-      "dry", "wet", "lucky", "unlucky", "honest", "liar", "gentle", "violent", "generous", "greedy",
-      "optimistic", "pessimistic", "proud", "humble", "ambitious", "lazy", "creative", "uncreative",
-      "flexible", "rigid", "energetic", "tired", "independent", "dependent", "practical", "impractical",
-      "mature", "immature", "organized", "disorganized", "confident", "insecure", "reliable", "unreliable",
-      "adventurous", "cautious", "curious", "uninterested", "playful", "serious", "supportive", "critical"
+      "important", "unimportant", "real", "fake", "funny", "serious", "modest",
+      "cool", "hot", "calm", "nervous", "angry", "peaceful", "long", "low",
+      "lucky", "unlucky", "liar", "gentle", "violent", "generous", "greedy",
+      "optimistic", "pessimistic", "proud", "humble", "ambitious", "uncreative",
+      "flexible", "rigid", "energetic", "tired", "independent", "dependent",
+      "practical", "impractical", "mature", "immature", "organized", "disorganized",
+      "confident", "insecure", "reliable", "unreliable", "adventurous", "cautious",
+      "curious", "uninterested", "playful", "supportive", "critical"
     ];
 
     const symbols = [">", "<", "="];
@@ -87,82 +95,129 @@
     let currentSymbol = '';
     const logEntries = [];
 
+    // 3. Helper functions
     function shuffle(array) {
+      console.log("🔄 [DEBUG] shuffle() called on array of length", array.length);
       return array.sort(() => Math.random() - 0.5);
     }
 
     function getNextAdjective() {
       if (adjectiveQueue.length === 0) {
+        console.log("🆕 [DEBUG] adjectiveQueue was empty; refilling and shuffling.");
         adjectiveQueue = shuffle([...adjectives]);
       }
-      return adjectiveQueue.pop();
+      const adj = adjectiveQueue.pop();
+      console.log("🔽 [DEBUG] getNextAdjective() returning:", adj);
+      return adj;
     }
 
+    // 4. newPrompt()
     function newPrompt() {
+      console.log("🔔 [DEBUG] newPrompt() invoked");
+      // Safety: check that elements exist
+      const adjEl = document.getElementById('adjCard');
+      const symEl = document.getElementById('symbolCard');
+
+      if (!adjEl || !symEl) {
+        console.error("❌ [ERROR] Could NOT find adjCard or symbolCard elements in DOM");
+        return;
+      }
+
+      // pick new adjective & symbol
       const randomAdj = getNextAdjective();
       const randomSym = symbols[Math.floor(Math.random() * symbols.length)];
       currentAdjective = randomAdj;
       currentSymbol = randomSym;
-      document.getElementById('adjCard').textContent = randomAdj;
-      document.getElementById('symbolCard').textContent = randomSym;
-      document.getElementById('userInput').value = '';
-      document.getElementById('feedbackText').textContent = '';
+
+      // update cards
+      adjEl.textContent = randomAdj;
+      symEl.textContent = randomSym;
+
+      // clear input + feedback
+      const inputEl = document.getElementById('userInput');
+      const feedbackEl = document.getElementById('feedbackText');
+      if (inputEl) inputEl.value = '';
+      if (feedbackEl) feedbackEl.textContent = '';
+
+      console.log("✅ [DEBUG] newPrompt updated cards:", randomAdj, randomSym);
     }
 
+    // 5. submitAnswer()
     function submitAnswer() {
+      console.log("✏️ [DEBUG] submitAnswer() invoked");
       const input = document.getElementById('userInput').value.trim();
       const feedback = document.getElementById('feedbackText');
       if (!input) {
         feedback.textContent = "⚠️ Please enter a sentence.";
         feedback.style.color = "orange";
+        console.warn("⚠️ [WARN] User tried to submit empty sentence.");
         return;
       }
 
       const formatted = `(${currentAdjective} ${currentSymbol}) → ${input}`;
       logEntries.push(formatted);
+      console.log("✅ [DEBUG] push to logEntries:", formatted);
 
       feedback.textContent = "✅ Answer recorded!";
       feedback.style.color = "green";
       newPrompt();
     }
 
+    // 6. clearAnswers()
     function clearAnswers() {
+      console.log("🧹 [DEBUG] clearAnswers() invoked");
       if (confirm("Clear all saved answers?")) {
         logEntries.length = 0;
-        document.getElementById('feedbackText').textContent = "🧹 Answers cleared.";
-        document.getElementById('feedbackText').style.color = "blue";
+        const fb = document.getElementById('feedbackText');
+        if (fb) {
+          fb.textContent = "🧹 Answers cleared.";
+          fb.style.color = "blue";
+        }
+        console.log("✅ [DEBUG] logEntries cleared.");
       }
     }
 
-function exportLog() {
-  const logText = logEntries.join("\n");
-  const encodedLog = encodeURIComponent(logText);
+    // 7. exportLog()
+    function exportLog() {
+      console.log("📁 [DEBUG] exportLog() invoked");
+      const logText = logEntries.join("\n");
+      const encodedLog = encodeURIComponent(logText);
 
-  const newWindow = window.open();
-  if (!newWindow) {
-    alert("⚠️ Pop-up blocked. Please allow pop-ups for this site.");
-    return;
-  }
+      const newWindow = window.open();
+      if (!newWindow) {
+        alert("⚠️ Pop-up blocked. Please allow pop-ups for this site.");
+        console.error("❌ [ERROR] window.open() returned null (pop-up blocked).");
+        return;
+      }
 
-  newWindow.document.write(\`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Comparison Game Log</title>
-      <style>
-        body { font-family: monospace; white-space: pre-wrap; padding: 2rem; background: #f9f9f9; }
-        h1 { font-size: 1.5rem; }
-      </style>
-    </head>
-    <body>
-      <h1>Comparison Game Answer Log</h1>
-      <div>\${decodeURIComponent(encodedLog)}</div>
-    </body>
-    </html>
-  \`);
-  newWindow.document.close();
-}
+      newWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Comparison Game Log</title>
+          <style>
+            body { font-family: monospace; white-space: pre-wrap; padding: 2rem; background: #f9f9f9; }
+            h1 { font-size: 1.5rem; }
+          </style>
+        </head>
+        <body>
+          <h1>Comparison Game Answer Log</h1>
+          <div>${decodeURIComponent(encodedLog)}</div>
+        </body>
+        </html>
+      `);
+      newWindow.document.close();
+      console.log("✅ [DEBUG] exportLog wrote to new window.");
+    }
 
+    // 8. Final confirmation that all functions exist
+    console.log("▶️ [DEBUG] Functions defined:",
+      {
+        newPrompt: typeof newPrompt,
+        submitAnswer: typeof submitAnswer,
+        clearAnswers: typeof clearAnswers,
+        exportLog: typeof exportLog
+      });
   </script>
 </body>
 </html>
