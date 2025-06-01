@@ -134,21 +134,35 @@
       }
     }
 
-    function exportLog() {
-      const exportText = logEntries.join("\n");
-      const blob = new Blob([exportText], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
+function exportLog() {
+  const logText = logEntries.join("\\n");
+  const encodedLog = encodeURIComponent(logText);
 
-      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const filename = `comparison_game_log_${timestamp}.txt`;
+  const newWindow = window.open();
+  if (!newWindow) {
+    alert(\"⚠️ Pop-up blocked. Please allow pop-ups for this site.\");
+    return;
+  }
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.click();
+  newWindow.document.write(\`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Comparison Game Log</title>
+      <style>
+        body { font-family: monospace; white-space: pre-wrap; padding: 2rem; background: #f9f9f9; }
+        h1 { font-size: 1.5rem; }
+      </style>
+    </head>
+    <body>
+      <h1>Comparison Game Answer Log</h1>
+      <div>\${decodeURIComponent(encodedLog)}</div>
+    </body>
+    </html>
+  \`);
+  newWindow.document.close();
+}
 
-      URL.revokeObjectURL(url);
-    }
   </script>
 </body>
 </html>
