@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Debug Comparison Game</title>
+  <title>Comparison Sentence Game</title>
   <style>
     body {
       font-family: sans-serif;
@@ -45,8 +45,7 @@
   <div class="card" id="adjCard">--</div>
   <div class="card" id="symbolCard">--</div>
   <br/>
-  <!-- Give the button an explicit id, too -->
-  <button id="startButton" onclick="newPrompt()">🎲 Start!</button>
+  <button onclick="newPrompt()">🎲 Start!</button>
 
   <hr style="margin: 2rem 0;">
 
@@ -63,8 +62,7 @@
   <div class="feedback" id="feedbackText"></div>
 
   <script>
-
-    // 2. Data arrays
+    // ───── Data & State ──────────────────────────────────────────────────────
     const adjectives = [
       "happy", "sad", "quick", "slow", "brave", "shy", "clever", "lazy", "kind", "mean",
       "polite", "rude", "quiet", "loud", "tough", "weak", "beautiful", "ugly",
@@ -93,7 +91,7 @@
     let currentSymbol = '';
     const logEntries = [];
 
-    // 3. Helper functions
+    // ───── Helper Functions ────────────────────────────────────────────────────
     function shuffle(array) {
       return array.sort(() => Math.random() - 0.5);
     }
@@ -102,47 +100,33 @@
       if (adjectiveQueue.length === 0) {
         adjectiveQueue = shuffle([...adjectives]);
       }
-      const adj = adjectiveQueue.pop();
-      return adj;
+      return adjectiveQueue.pop();
     }
 
-    // 4. newPrompt()
+    // ───── Core Logic ─────────────────────────────────────────────────────────
     function newPrompt() {
-      // Safety: check that elements exist
-      const adjEl = document.getElementById('adjCard');
-      const symEl = document.getElementById('symbolCard');
-
-      if (!adjEl || !symEl) {
-        console.error("❌ [ERROR] Could NOT find adjCard or symbolCard elements in DOM");
-        return;
-      }
-
-      // pick new adjective & symbol
+      // 1) Pick a random adjective and symbol
       const randomAdj = getNextAdjective();
       const randomSym = symbols[Math.floor(Math.random() * symbols.length)];
       currentAdjective = randomAdj;
       currentSymbol = randomSym;
 
-      // update cards
-      adjEl.textContent = randomAdj;
-      symEl.textContent = randomSym;
+      // 2) Update the two "card" DIVs
+      document.getElementById('adjCard').textContent = randomAdj;
+      document.getElementById('symbolCard').textContent = randomSym;
 
-      // clear input + feedback
-      const inputEl = document.getElementById('userInput');
-      const feedbackEl = document.getElementById('feedbackText');
-      if (inputEl) inputEl.value = '';
-      if (feedbackEl) feedbackEl.textContent = '';
-
+      // 3) Clear input & feedback
+      document.getElementById('userInput').value = '';
+      document.getElementById('feedbackText').textContent = '';
     }
 
-    // 5. submitAnswer()
     function submitAnswer() {
       const input = document.getElementById('userInput').value.trim();
       const feedback = document.getElementById('feedbackText');
+
       if (!input) {
         feedback.textContent = "⚠️ Please enter a sentence.";
         feedback.style.color = "orange";
-        console.warn("⚠️ [WARN] User tried to submit empty sentence.");
         return;
       }
 
@@ -151,30 +135,27 @@
 
       feedback.textContent = "✅ Answer recorded!";
       feedback.style.color = "green";
+
+      // Immediately load the next prompt
       newPrompt();
     }
 
-    // 6. clearAnswers()
     function clearAnswers() {
       if (confirm("Clear all saved answers?")) {
         logEntries.length = 0;
         const fb = document.getElementById('feedbackText');
-        if (fb) {
-          fb.textContent = "🧹 Answers cleared.";
-          fb.style.color = "blue";
-        }
+        fb.textContent = "🧹 Answers cleared.";
+        fb.style.color = "blue";
       }
     }
 
-    // 7. exportLog()
     function exportLog() {
       const logText = logEntries.join("\n");
       const encodedLog = encodeURIComponent(logText);
 
       const newWindow = window.open();
       if (!newWindow) {
-        alert("⚠️ Pop-up blocked. Please allow pop-ups for this site.");
-        console.error("❌ [ERROR] window.open() returned null (pop-up blocked).");
+        alert("⚠️ Pop‐up blocked. Please allow pop‐ups for this site.");
         return;
       }
 
@@ -182,10 +163,18 @@
         <!DOCTYPE html>
         <html>
         <head>
+          <meta charset="UTF-8" />
           <title>Comparison Game Log</title>
           <style>
-            body { font-family: monospace; white-space: pre-wrap; padding: 2rem; background: #f9f9f9; }
-            h1 { font-size: 1.5rem; }
+            body {
+              font-family: monospace;
+              white-space: pre-wrap;
+              padding: 2rem;
+              background: #f9f9f9;
+            }
+            h1 {
+              font-size: 1.5rem;
+            }
           </style>
         </head>
         <body>
@@ -196,14 +185,6 @@
       `);
       newWindow.document.close();
     }
-
-    // 8. Final confirmation that all functions exist
-      {
-        newPrompt: typeof newPrompt,
-        submitAnswer: typeof submitAnswer,
-        clearAnswers: typeof clearAnswers,
-        exportLog: typeof exportLog
-      });
   </script>
 </body>
 </html>
