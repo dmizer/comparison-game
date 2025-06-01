@@ -149,42 +149,41 @@
       }
     }
 
-    function exportLog() {
-      const logText = logEntries.join("\n");
-      const encodedLog = encodeURIComponent(logText);
+function exportLog() {
+  // 1) Build the plain-text log (one line per entry):
+  const logText = logEntries.join("\n");
 
-      const newWindow = window.open();
-      if (!newWindow) {
-        alert("⚠️ Pop‐up blocked. Please allow pop‐ups for this site.");
-        return;
-      }
+  // 2) Wrap it in a simple HTML shell:
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Comparison Game Answer Log</title>
+        <style>
+          body {
+            font-family: monospace;
+            white-space: pre-wrap;
+            padding: 2rem;
+            background: #f9f9f9;
+          }
+          h1 {
+            font-size: 1.5rem;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Comparison Game Answer Log</h1>
+        <div>${logText.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</div>
+      </body>
+    </html>
+  `;
 
-      newWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8" />
-          <title>Comparison Game Log</title>
-          <style>
-            body {
-              font-family: monospace;
-              white-space: pre-wrap;
-              padding: 2rem;
-              background: #f9f9f9;
-            }
-            h1 {
-              font-size: 1.5rem;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>Comparison Game Answer Log</h1>
-          <div>${decodeURIComponent(encodedLog)}</div>
-        </body>
-        </html>
-      `);
-      newWindow.document.close();
-    }
+  // 3) Encode it as a data: URL and navigate there:
+  const dataUrl = "data:text/html;charset=utf-8," + encodeURIComponent(htmlContent);
+  window.location.href = dataUrl;
+}
+
   </script>
 </body>
 </html>
