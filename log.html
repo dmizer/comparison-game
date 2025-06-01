@@ -28,14 +28,8 @@
     // 2) DecodeURIComponent → get the original multiline text:
     const decoded = decodeURIComponent(rawData);
 
-    // 3) Sanitize <, >, & so that any punctuation stays literal:
-    const safe = decoded
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-
-    // 4) Insert into the page:
-    document.getElementById('logContainer').innerText = safe;
+    // 3) Instead of manually escaping “<” and “>”, just assign to textContent:
+    document.getElementById('logContainer').textContent = decoded;
   </script>
 </body>
 </html>
