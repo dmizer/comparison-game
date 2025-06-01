@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comparison Game Answer Log</title>
+  <style>
+    body {
+      font-family: monospace;
+      white-space: pre-wrap;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Comparison Game Answer Log</h1>
+  <div id="logContainer"></div>
+
+  <script>
+    // 1) Grab the “data” parameter from the URL:
+    const params = new URLSearchParams(window.location.search);
+    const rawData = params.get('data') || '';
+
+    // 2) DecodeURIComponent → get the original multiline text:
+    const decoded = decodeURIComponent(rawData);
+
+    // 3) Sanitize <, >, & so that any punctuation stays literal:
+    const safe = decoded
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // 4) Insert into the page:
+    document.getElementById('logContainer').innerText = safe;
+  </script>
+</body>
+</html>
