@@ -40,7 +40,7 @@
   </style>
 </head>
 <body>
-  <h1>📝 Comparison Sentence Game (Debug)</h1>
+  <h1>📝 Comparison Sentence Game</h1>
 
   <div class="card" id="adjCard">--</div>
   <div class="card" id="symbolCard">--</div>
@@ -63,8 +63,6 @@
   <div class="feedback" id="feedbackText"></div>
 
   <script>
-    // 1. Script load check
-    console.log("▶️ [DEBUG] script tag has been parsed.");
 
     // 2. Data arrays
     const adjectives = [
@@ -97,23 +95,19 @@
 
     // 3. Helper functions
     function shuffle(array) {
-      console.log("🔄 [DEBUG] shuffle() called on array of length", array.length);
       return array.sort(() => Math.random() - 0.5);
     }
 
     function getNextAdjective() {
       if (adjectiveQueue.length === 0) {
-        console.log("🆕 [DEBUG] adjectiveQueue was empty; refilling and shuffling.");
         adjectiveQueue = shuffle([...adjectives]);
       }
       const adj = adjectiveQueue.pop();
-      console.log("🔽 [DEBUG] getNextAdjective() returning:", adj);
       return adj;
     }
 
     // 4. newPrompt()
     function newPrompt() {
-      console.log("🔔 [DEBUG] newPrompt() invoked");
       // Safety: check that elements exist
       const adjEl = document.getElementById('adjCard');
       const symEl = document.getElementById('symbolCard');
@@ -139,12 +133,10 @@
       if (inputEl) inputEl.value = '';
       if (feedbackEl) feedbackEl.textContent = '';
 
-      console.log("✅ [DEBUG] newPrompt updated cards:", randomAdj, randomSym);
     }
 
     // 5. submitAnswer()
     function submitAnswer() {
-      console.log("✏️ [DEBUG] submitAnswer() invoked");
       const input = document.getElementById('userInput').value.trim();
       const feedback = document.getElementById('feedbackText');
       if (!input) {
@@ -156,7 +148,6 @@
 
       const formatted = `(${currentAdjective} ${currentSymbol}) → ${input}`;
       logEntries.push(formatted);
-      console.log("✅ [DEBUG] push to logEntries:", formatted);
 
       feedback.textContent = "✅ Answer recorded!";
       feedback.style.color = "green";
@@ -165,7 +156,6 @@
 
     // 6. clearAnswers()
     function clearAnswers() {
-      console.log("🧹 [DEBUG] clearAnswers() invoked");
       if (confirm("Clear all saved answers?")) {
         logEntries.length = 0;
         const fb = document.getElementById('feedbackText');
@@ -173,13 +163,11 @@
           fb.textContent = "🧹 Answers cleared.";
           fb.style.color = "blue";
         }
-        console.log("✅ [DEBUG] logEntries cleared.");
       }
     }
 
     // 7. exportLog()
     function exportLog() {
-      console.log("📁 [DEBUG] exportLog() invoked");
       const logText = logEntries.join("\n");
       const encodedLog = encodeURIComponent(logText);
 
@@ -207,11 +195,9 @@
         </html>
       `);
       newWindow.document.close();
-      console.log("✅ [DEBUG] exportLog wrote to new window.");
     }
 
     // 8. Final confirmation that all functions exist
-    console.log("▶️ [DEBUG] Functions defined:",
       {
         newPrompt: typeof newPrompt,
         submitAnswer: typeof submitAnswer,
